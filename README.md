@@ -54,16 +54,18 @@ ai-model-validation-framework/
 ├── src/
 │   └── aimvf/
 │       ├── __init__.py
+│       ├── fairness.py
 │       ├── metrics.py
-│       ├── risk.py
-│       └── monitoring.py
+│       └── risk.py
 ├── docs/
 │   ├── validation-framework.md
+│   ├── fairness-subgroup-validation.md
 │   ├── model-card-template.md
 │   ├── risk-register-template.md
 │   └── monitoring-and-retraining.md
 └── examples/
-    └── demo_validation_report.py
+    ├── demo_validation_report.py
+    └── fairness_subgroup_validation_report.py
 ```
 
 ## What this framework covers
@@ -104,7 +106,6 @@ ai-model-validation-framework/
 
 ### 5. Monitoring and retraining
 
-- Drift monitoring
 - Performance monitoring
 - Human feedback and complaint signals
 - Trigger criteria for investigation
@@ -122,7 +123,7 @@ ai-model-validation-framework/
 | Fairness | Subgroup performance and predefined disparity thresholds |
 | Robustness | Stress tests, OOD cases, noisy/low-quality input handling |
 | Explainability | Model behaviour evidence, saliency, feature contribution, human review |
-| Monitoring | Drift signals, failure reports, performance trends, retraining triggers |
+| Monitoring | Failure reports, performance trends, retraining triggers |
 | Change control | Model updates, dataset changes, software changes, impact assessment |
 
 ## Quick start
@@ -133,10 +134,16 @@ Install the minimal dependencies:
 pip install -r requirements.txt
 ```
 
-Run the example validation report:
+Run the basic validation report:
 
 ```bash
 PYTHONPATH=src python examples/demo_validation_report.py
+```
+
+Run the fairness and subgroup validation report:
+
+```bash
+PYTHONPATH=src python examples/fairness_subgroup_validation_report.py
 ```
 
 ## Example usage
@@ -144,7 +151,7 @@ PYTHONPATH=src python examples/demo_validation_report.py
 ```python
 from aimvf.metrics import classification_summary
 from aimvf.risk import risk_priority_number
-from aimvf.monitoring import drift_signal
+from aimvf.fairness import subgroup_classification_summary, metric_gap
 
 summary = classification_summary(
     y_true=[1, 0, 1, 1, 0, 0],
@@ -152,11 +159,18 @@ summary = classification_summary(
 )
 
 rpn = risk_priority_number(severity=4, occurrence=3, detectability=2)
-drift = drift_signal(reference_mean=0.42, current_mean=0.57, threshold=0.10)
+
+subgroups = subgroup_classification_summary(
+    y_true=[1, 1, 0, 0],
+    y_pred=[1, 0, 0, 0],
+    subgroup=["site_a", "site_a", "site_b", "site_b"],
+)
+
+gap = metric_gap(subgroups, metric_name="recall_macro")
 
 print(summary)
 print(rpn)
-print(drift)
+print(gap)
 ```
 
 ## Professional positioning
@@ -169,7 +183,6 @@ This repository demonstrates how a senior AI/ML engineer or AI technical reviewe
 - Add segmentation metric examples, including Dice and IoU
 - Add LLM/RAG evaluation checklist
 - Add model card generator
-- Add synthetic fairness analysis example
 - Add monitoring dashboard mock-up
 - Add GitHub Actions quality checks
 
