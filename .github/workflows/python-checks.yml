@@ -22,3 +22,6 @@ jobs:
       - name: Run fairness subgroup validation demo
         run: |
           PYTHONPATH=src python examples/fairness_subgroup_validation_report.py
+      - name: Run LLM RAG evaluation demo
+        run: |
+          PYTHONPATH=src python examples/llm_rag_evaluation_report.py
