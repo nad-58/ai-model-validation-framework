@@ -55,17 +55,20 @@ ai-model-validation-framework/
 │   └── aimvf/
 │       ├── __init__.py
 │       ├── fairness.py
+│       ├── llm_eval.py
 │       ├── metrics.py
 │       └── risk.py
 ├── docs/
 │   ├── validation-framework.md
 │   ├── fairness-subgroup-validation.md
+│   ├── llm-rag-evaluation.md
 │   ├── model-card-template.md
 │   ├── risk-register-template.md
 │   └── monitoring-and-retraining.md
 └── examples/
     ├── demo_validation_report.py
-    └── fairness_subgroup_validation_report.py
+    ├── fairness_subgroup_validation_report.py
+    └── llm_rag_evaluation_report.py
 ```
 
 ## What this framework covers
@@ -96,7 +99,15 @@ ai-model-validation-framework/
 - Investigation triggers when performance differences exceed predefined limits
 - Mitigation options and documentation expectations
 
-### 4. Robustness and stress testing
+### 4. LLM/RAG evaluation
+
+- Groundedness and source traceability
+- Relevance and completeness scoring
+- Unsupported-claim detection
+- Prompt robustness and misuse scenarios
+- Human review and escalation criteria
+
+### 5. Robustness and stress testing
 
 - Noise, blur, compression, artefacts, missing input, low-quality input
 - Out-of-distribution input detection
@@ -104,7 +115,7 @@ ai-model-validation-framework/
 - Sensitivity to acquisition conditions and hardware variability
 - Edge deployment constraints such as latency, memory, and quantisation
 
-### 5. Monitoring and retraining
+### 6. Monitoring and retraining
 
 - Performance monitoring
 - Human feedback and complaint signals
@@ -121,6 +132,7 @@ ai-model-validation-framework/
 | Model | Architecture, version, training method, hyperparameters, dependencies |
 | Performance | Accuracy, F1, AUROC, AUPRC, Dice, MAE, sensitivity, specificity, latency |
 | Fairness | Subgroup performance and predefined disparity thresholds |
+| LLM/RAG | Groundedness, source traceability, unsupported claims, human review |
 | Robustness | Stress tests, OOD cases, noisy/low-quality input handling |
 | Explainability | Model behaviour evidence, saliency, feature contribution, human review |
 | Monitoring | Failure reports, performance trends, retraining triggers |
@@ -146,12 +158,19 @@ Run the fairness and subgroup validation report:
 PYTHONPATH=src python examples/fairness_subgroup_validation_report.py
 ```
 
+Run the LLM/RAG evaluation report:
+
+```bash
+PYTHONPATH=src python examples/llm_rag_evaluation_report.py
+```
+
 ## Example usage
 
 ```python
 from aimvf.metrics import classification_summary
 from aimvf.risk import risk_priority_number
 from aimvf.fairness import subgroup_classification_summary, metric_gap
+from aimvf.llm_eval import RAGEvaluationItem, evaluate_rag_item
 
 summary = classification_summary(
     y_true=[1, 0, 1, 1, 0, 0],
@@ -168,9 +187,23 @@ subgroups = subgroup_classification_summary(
 
 gap = metric_gap(subgroups, metric_name="recall_macro")
 
+rag_result = evaluate_rag_item(
+    RAGEvaluationItem(
+        question="What evidence is needed before release?",
+        answer="Validation, monitoring review, and approval are needed.",
+        retrieved_sources=["validation-plan"],
+        expected_key_points=["validation", "monitoring", "approval"],
+        groundedness_score=0.90,
+        relevance_score=0.92,
+        completeness_score=0.80,
+        unsupported_claims=0,
+    )
+)
+
 print(summary)
 print(rpn)
 print(gap)
+print(rag_result)
 ```
 
 ## Professional positioning
@@ -181,7 +214,6 @@ This repository demonstrates how a senior AI/ML engineer or AI technical reviewe
 
 - Add regression validation examples
 - Add segmentation metric examples, including Dice and IoU
-- Add LLM/RAG evaluation checklist
 - Add model card generator
 - Add monitoring dashboard mock-up
 - Add GitHub Actions quality checks
