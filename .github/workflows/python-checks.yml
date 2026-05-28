@@ -16,6 +16,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run demo
+      - name: Run basic validation demo
         run: |
           PYTHONPATH=src python examples/demo_validation_report.py
+      - name: Run fairness subgroup validation demo
+        run: |
+          PYTHONPATH=src python examples/fairness_subgroup_validation_report.py
