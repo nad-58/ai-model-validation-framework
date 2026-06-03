@@ -25,3 +25,6 @@ jobs:
       - name: Run LLM RAG evaluation demo
         run: |
           PYTHONPATH=src python examples/llm_rag_evaluation_report.py
+      - name: Run full lifecycle validation demo
+        run: |
+          PYTHONPATH=src python examples/full_lifecycle_validation_report.py
