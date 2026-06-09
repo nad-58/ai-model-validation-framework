@@ -1,14 +1,18 @@
 # AI Model Validation Framework
 
-A practical framework for validating AI and machine learning systems across the full lifecycle: dataset quality, model performance, calibration, fairness, robustness, error analysis, monitoring, human oversight, and change control.
+A practical, public-safe framework for validating AI and machine learning systems across the full lifecycle: dataset quality, model performance, calibration, fairness, robustness, error analysis, monitoring, human oversight, and change control.
 
-This repository is a public portfolio project using **generic examples and synthetic templates only**. It does **not** contain confidential client data, proprietary product documentation, patient data, regulated-device evidence, or employer/customer-specific materials.
+All examples are synthetic and generic. This repository does not include confidential client information, proprietary product evidence, patient data, employer documentation, or material copied from third-party assessments.
 
-## Why this project exists
+## Purpose
 
-Modern AI systems need more than an accuracy score. They need evidence that the data is suitable, the model is reliable, the behaviour is understandable, the performance is acceptable across relevant subgroups, and the system can be monitored and controlled after release.
+Modern AI systems need more than an accuracy score. Validation should show that the data is suitable, the model behaves reliably, performance is acceptable across relevant groups, known failure modes are understood, and the system can be monitored and controlled after release.
 
-This repository provides a reusable structure for documenting AI validation evidence from early development through post-deployment monitoring and re-validation.
+This repository provides transparent Python utilities, worked examples, documentation, and reusable templates for building that evidence.
+
+## Important limitation
+
+This project is educational and portfolio-oriented. It is not a certification scheme, legal opinion, medical-device submission, or substitute for independent statistical, safety, security, clinical, or regulatory review. Acceptance criteria in the examples are illustrative and must be adapted to the intended use and risk of a real system.
 
 ## Core validation lifecycle
 
@@ -37,8 +41,11 @@ Monitoring, change control, and re-validation
 ```text
 ai-model-validation-framework/
 ├── README.md
+├── LICENSE
+├── pyproject.toml
 ├── requirements.txt
 ├── src/aimvf/
+│   ├── __init__.py
 │   ├── fairness.py
 │   ├── llm_eval.py
 │   ├── metrics.py
@@ -55,13 +62,14 @@ ai-model-validation-framework/
 │   ├── validation-framework.md
 │   ├── fairness-subgroup-validation.md
 │   ├── llm-rag-evaluation.md
-│   └── monitoring-and-retraining.md
-└── templates/
-    ├── model-evaluation-report-template.md
-    ├── dataset-quality-review-template.md
-    ├── model-comparison-regression-testing-template.md
-    ├── model-card-template.md
-    └── risk-register-template.md
+│   ├── monitoring-and-retraining.md
+│   ├── model-card-template.md
+│   └── risk-register-template.md
+├── templates/
+│   ├── model-evaluation-report-template.md
+│   ├── dataset-quality-review-template.md
+│   └── model-comparison-regression-testing-template.md
+└── tests/
 ```
 
 ## Documentation guide
@@ -69,7 +77,7 @@ ai-model-validation-framework/
 | Document | Purpose |
 |---|---|
 | [`docs/full-lifecycle-ai-evaluation.md`](docs/full-lifecycle-ai-evaluation.md) | End-to-end AI model and dataset evaluation framework |
-| [`docs/dataset-evaluation-and-leakage.md`](docs/dataset-evaluation-and-leakage.md) | Dataset quality, split integrity, duplicates, leakage, proxy-feature review |
+| [`docs/dataset-evaluation-and-leakage.md`](docs/dataset-evaluation-and-leakage.md) | Dataset quality, split integrity, duplicates, leakage, and proxy-feature review |
 | [`docs/calibration-and-error-analysis.md`](docs/calibration-and-error-analysis.md) | Confidence reliability, calibration evidence, and systematic error review |
 | [`docs/fairness-subgroup-validation.md`](docs/fairness-subgroup-validation.md) | Subgroup and segment-level performance assessment |
 | [`docs/llm-rag-evaluation.md`](docs/llm-rag-evaluation.md) | Groundedness, traceability, unsupported claims, and human review for LLM/RAG systems |
@@ -85,12 +93,12 @@ ai-model-validation-framework/
 | [`docs/model-card-template.md`](docs/model-card-template.md) | Model card structure for intended use, performance, limitations, and monitoring |
 | [`docs/risk-register-template.md`](docs/risk-register-template.md) | AI risk register structure |
 
-## What this framework covers
+## What the framework covers
 
 ### Dataset governance
 
 - Dataset source and intended-use mapping
-- Train/validation/test split integrity
+- Train, validation, and test split integrity
 - Duplicate and near-duplicate checks
 - Leakage and proxy-feature review
 - Missing, invalid, and out-of-range inputs
@@ -114,46 +122,60 @@ ai-model-validation-framework/
 - Investigation triggers
 - Change impact assessment
 - Retraining and re-validation logic
-- Evidence-based governance decision
+- Evidence-based governance decisions
 
-## Quick start
-
-Install the minimal dependencies:
+## Installation
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/nad-58/ai-model-validation-framework.git
+cd ai-model-validation-framework
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python -m pip install -e ".[dev]"
 ```
 
-Run the examples:
+## Run the examples
 
 ```bash
-PYTHONPATH=src python examples/demo_validation_report.py
-PYTHONPATH=src python examples/fairness_subgroup_validation_report.py
-PYTHONPATH=src python examples/llm_rag_evaluation_report.py
-PYTHONPATH=src python examples/full_lifecycle_validation_report.py
+python examples/demo_validation_report.py
+python examples/fairness_subgroup_validation_report.py
+python examples/llm_rag_evaluation_report.py
+python examples/full_lifecycle_validation_report.py
 ```
+
+## Run validation checks
+
+```bash
+python -m compileall -q src tests examples
+python -m pytest tests -q
+python -m build
+python -m twine check dist/*
+```
+
+GitHub Actions performs the same checks and scans the complete Git history for secret-like content before changes are merged.
 
 ## Example output themes
 
 The full-lifecycle example demonstrates a synthetic validation review covering:
 
-- Dataset missingness and duplicate checks
-- Classification metrics
-- Subgroup performance
-- Calibration-style confidence review
-- Readiness decision based on predefined checks
+- dataset missingness and duplicate checks;
+- classification metrics;
+- subgroup performance;
+- confidence and high-confidence error review;
+- simple risk scoring;
+- a transparent governance decision based on predefined checks.
 
-## Professional positioning
+## Public-release safeguards
 
-This repository demonstrates how to structure AI validation evidence for real-world systems while keeping all content generic and portfolio-safe. The same framework can be adapted to computer vision, tabular ML, embedded AI, LLM/RAG workflows, and high-risk AI governance.
+Before changing repository visibility, review [`PUBLIC_RELEASE_CHECKLIST.md`](PUBLIC_RELEASE_CHECKLIST.md). The repository also includes a security policy and automated full-history secret scanning.
 
 ## Roadmap
 
-- Add regression validation example
-- Add segmentation metric example with Dice and IoU
-- Add model card generator
-- Add monitoring dashboard mock-up
-- Add additional unit tests and CI checks
+- Add confidence intervals and bootstrap examples
+- Add model-comparison regression tests
+- Add robustness and perturbation utilities
+- Add monitoring dashboard examples
+- Expand tests for edge cases and statistical limitations
 
 ## Licence
 

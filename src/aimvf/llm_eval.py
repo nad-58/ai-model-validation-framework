@@ -8,8 +8,8 @@ from typing import Sequence
 class RAGEvaluationItem:
     """Single RAG/LLM evaluation record.
 
-    Scores use a 0-1 scale where higher is better, except unsupported_claims,
-    where lower is better.
+    Scores use a zero-to-one scale where higher is better, except
+    ``unsupported_claims``, where lower is better.
     """
 
     question: str
@@ -23,6 +23,11 @@ class RAGEvaluationItem:
     human_review_required: bool = False
 
 
+def _validate_unit_interval(name: str, value: float) -> None:
+    if value < 0.0 or value > 1.0:
+        raise ValueError(f"{name} must be between 0 and 1")
+
+
 def evaluate_rag_item(
     item: RAGEvaluationItem,
     min_groundedness: float = 0.80,
@@ -30,7 +35,24 @@ def evaluate_rag_item(
     min_completeness: float = 0.70,
     max_unsupported_claims: int = 0,
 ) -> dict:
-    """Apply simple acceptance criteria to a RAG/LLM evaluation item."""
+    """Apply transparent acceptance criteria to one RAG/LLM item."""
+    if not item.question.strip():
+        raise ValueError("question must not be empty")
+    if item.unsupported_claims < 0:
+        raise ValueError("unsupported_claims must not be negative")
+    if max_unsupported_claims < 0:
+        raise ValueError("max_unsupported_claims must not be negative")
+
+    for name, value in {
+        "groundedness_score": item.groundedness_score,
+        "relevance_score": item.relevance_score,
+        "completeness_score": item.completeness_score,
+        "min_groundedness": min_groundedness,
+        "min_relevance": min_relevance,
+        "min_completeness": min_completeness,
+    }.items():
+        _validate_unit_interval(name, value)
+
     checks = {
         "groundedness_pass": item.groundedness_score >= min_groundedness,
         "relevance_pass": item.relevance_score >= min_relevance,
@@ -50,7 +72,7 @@ def evaluate_rag_item(
 def aggregate_rag_evaluation(results: Sequence[dict]) -> dict:
     """Summarise RAG/LLM evaluation decisions across multiple items."""
     total = len(results)
-    accepted = sum(1 for result in results if result["passed"])
+    accepted = sum(1 for result in results if bool(result.get("passed")))
     review_required = total - accepted
     return {
         "total_items": total,
